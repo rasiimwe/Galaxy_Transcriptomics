@@ -9,13 +9,13 @@
 Our dataset contained 697 samples from SIV infected Rhesus monkeys. After removal of tissues for which less than 3 replicates for each time point were available, 231 samples from 7 tissues remained (blood, colon, jejunum, tonsil as well as the axillary, mesenteric and genital-pelvic lymph node). For data cleaning, we downloaded the raw data files from the GEO website (GSE80013) and plotted correlation matrices. In general, correlation was high between all samples with higher correlation between samples from the same tissue (Fig.1A). To identify outliers, inter-sample correlation was analyzed within each tissue. 1 outlier from the colon (Fig. 1B) and two outliers from the tonsil were removed.
 
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/correlation%20heatmap-1.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Results/Data/Processed%20Data/Data_Cleaning_files/figure-html/correlation%20heatmap-1.png"> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 **Figure 1A: Inter-sample correlation before cleanup of all samples**
 
 &nbsp;
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/colon%20correlation-1.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/colon%20correlation-1.png"> 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Figure 1B: Inter-sample correlation before cleanup of colon samples**
 
@@ -23,17 +23,17 @@ Our dataset contained 697 samples from SIV infected Rhesus monkeys. After remova
 
 For each tissue, we fit a linear model using time as a numeric variable. We compared linear models with and without a quadratic term for time. By plotting the top hits of the linear and the quadratic model, we can see that there are probes for which the quadratic or the linear model are a better fit (Fig.1C and Fig.1D).
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%201/Linear%20Models/Validation%20of%20Linear%20Models/Validation_of_Linear_Models_files/figure-html/unnamed-chunk-2-1.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Methods/Question%201/Linear%20Models/Validation%20of%20Linear%20Models/Validation_of_Linear_Models_files/figure-html/unnamed-chunk-2-1.png"> 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Figure 1C: Top 4 probes in the Jejunum identified by the simple linear model**
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%201/Linear%20Models/Validation%20of%20Linear%20Models/Validation_of_Linear_Models_files/figure-html/unnamed-chunk-2-2.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Methods/Question%201/Linear%20Models/Validation%20of%20Linear%20Models/Validation_of_Linear_Models_files/figure-html/unnamed-chunk-2-2.png"> 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Figure 1D: Top 4 probes in the Jejunum identified by the quadratic model**
 
 To compare the two models in a more systematic manner, we looked at the difference in AIC for the linear and the quadratic model (Fig 1E and Table 1). For a very high percentage of probes, there is very little difference in AIC, indicating that there is no big advantage of choosing one model over the other. The "clear" cutoff at -2 is due to the way that the AIC is calculated: AIC = 2k - 2ln(L) where k is the number of model parameters and L is the maximized value of the likelihood function for the evaluated model. A difference of -2 simply reflects the higher number of degrees of freedom in the quadratic model when there is no difference in L for the two models.
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%201/Linear%20Models/Validation%20of%20Linear%20Models/Validation_of_Linear_Models_files/figure-html/unnamed-chunk-12-1.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Methods/Question%201/Linear%20Models/Validation%20of%20Linear%20Models/Validation_of_Linear_Models_files/figure-html/unnamed-chunk-12-1.png"> 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Figure 1E: Histogram of the difference in AIC values between the linear and the quadratic model for the jejunum**
 &nbsp;
@@ -113,13 +113,13 @@ We next asked which biological function these probes relate to and therefore con
 ## 2. Assess whether transcriptomic changes in blood are the same as in other tissues.
 The number of DE probes range from 316 probes in the tonsil to 5463 probes identified in the jejunum. We asked whether there was some overlap between the DE probes from different tissues. As depicted in Figure 2A, there is considerable overlap between DE probes from the jejunum and the blood while there are also many probes that are DE only in one of the tissues. Similar results were obtained with all other tissues.
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%202/question2_files/figure-html/unnamed-chunk-7-1.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Methods/Question%202/question2_files/figure-html/unnamed-chunk-7-1.png"> 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Figure 2A: Overlap of DE probes in blood and jejunum**
 
 To more closely look at the “common” DE probes, we generated linear models comparing the time point against day 0 (--> four linear models: day1vs0, day3vs0, day7vs0, day10vs0) for each tissue separately and containing only probes that are DE in both blood and the tissue of interest (here: jejunum). The logFC between blood and jejunum were compared by fitting a linear regression curve (Fig. 2B and Table 4): There is correlation between the fold changes in the jejunum and in the blood, as evidenced by the R^2 values. The slope around 1 indicates that genes are up- and down-regulated to the same extent in blood and jejunum after SIV infection. At day 10 (slope = 1.4), the changes in jejunum are more pronounced than in blood for the genes that are DE in both tissues.
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%202/question2_files/figure-html/unnamed-chunk-7-2.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Methods/Question%202/question2_files/figure-html/unnamed-chunk-7-2.png"> 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Figure 2B: Correlation between fold changes of common DE probes in the jejunum and blood**
 &nbsp;
@@ -140,13 +140,13 @@ In conclusion, there is considerable overlap between DE expressed probes in a ti
 ## 3. Investigate whether transcriptomic changes in lymph nodes vary by lymph node location.
 We hypothesized that transcriptomic changes might be different in the three studied lymph nodes as distance from infection site varies. We find no evidence to support this hypothesis by using hierarchical clustering and PCA (Fig.3A and Fig.3b). 
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%203/question3_files/figure-html/PCA-1.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Methods/Question%203/question3_files/figure-html/PCA-1.png"> 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Figure 3A: PCA of the lymph node samples annotated by time point** 
 &nbsp;
 &nbsp;
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%203/question3_files/figure-html/PCA-2.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Methods/Question%203/question3_files/figure-html/PCA-2.png"> 
 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**Figure 3B: PCA of the lymph node samples annotated by lymph tissue type**
 
