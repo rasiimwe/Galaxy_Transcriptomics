@@ -1,0 +1,197 @@
+---
+title: "Data Cleaning"
+output: 
+  html_document: 
+    keep_md: yes
+---
+
+
+```{r setup, include=FALSE, warning=FALSE}
+library(GEOquery)
+library(Biobase)
+library(knitr)
+library(NMF)
+library(preprocessCore)
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE)
+opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+opts_knit$set(root.dir = "C:/Users/Christina/Desktop/Bioinformatics/group project/team_SIV-in-Rhesus-Monkeys")
+```
+
+## Data Import:
+
+We are working with a publicly available data set. After download from the GEO website (GSE80013), we will now inspect and clean the data.
+
+Download supplemental files including raw data:
+```{r}
+filePaths = getGEOSuppFiles("GSE80013")
+#load and inspect the non-normalized matrix:
+rawDATA <- read.table("GSE80013/GSE80013_non-normalized_matrix.txt.gz", header=TRUE, row.names = 1)
+kable(rawDATA[1:4,1:5], format = "markdown", digits = 2)
+#get dimensions of the data frame:
+dim(rawDATA)
+```
+
+The data frame contains 697 columns (samples) and 47231 rows (probes) as expected. How many NA values are in the dataframe?
+```{r}
+sum(is.na(rawDATA))
+```
+
+This number is relatively low for such a big data frame. We will remove all rows from the dataset that contain missing values.
+```{r}
+rawDATA <- na.omit(rawDATA)
+```
+
+Read the metadata file:
+```{r}
+MetaData <- read.table("../team_SIV-in-Rhesus-Monkeys/Data/Raw Data/Metadata.txt", header = TRUE)
+#sanity check: display excerpt of the meta data:
+kable(head(MetaData), format = "markdown")
+#change the column names of the data file to match the metadata
+colnames(rawDATA) <- gsub("X", "", colnames(rawDATA))
+```
+
+## Selection of relevant tissue samples:
+We are only interested in the seven tissues for which there is at least three replicates at each time point (Jejunum, Blood, Tonsil, Colon as well as the axiallary, mesenteric and genital-pelvic Lymph Node). We will select these samples and drop all other samples from the MetaData and the rawDATA files.
+```{r tissues of interest}
+#make character string containing the tissues of interest
+tissues_of_interest <- c('Jejunum', 'Blood', 'Tonsil', 'axillary_LN', 'mesenteric_LN', 'genital_pelvic_LN', 'Colon')
+#subset the MetaData keeping only the samples from tissues of interest
+MetaData <- MetaData[MetaData$tissue %in% tissues_of_interest,]
+MetaData <- droplevels(MetaData)
+#extract the samples names of the selected samples
+samples_of_interest <- row.names(MetaData)
+#subset the data keeping only the samples of interest
+rawDATA <- rawDATA[,samples_of_interest]
+#get dimensions of the data frame
+dim(rawDATA)
+```
+
+After selection of the tissues of interest, 231 samples remain in out data set.
+
+Sanity check: check for log2 intensity distribution between the samples:
+```{r}
+lograwDATA <- log2(rawDATA)
+boxplot(lograwDATA,range=0,ylab="log2 intensity", xaxt="n", main= 'sample log2 intensity distribution')
+```
+
+## Sample to sample correlation:
+```{r}
+#correlate samples and store in variable c:
+c <- cor(lograwDATA)
+```
+
+We will look at the distribution of inter-sample variability:
+```{r inter-sample variability}
+hist(c,sub=paste("Mean=",format(mean(c[upper.tri(c)]),digits=3)), main='inter-sample variability')
+min(c)
+```
+
+The tail to the left suggests that there might be some outliers present within the data. The lowest correlation value is 0.57. 
+
+We will visualize the inter-sample correlation in a heatmap, ordering the samples by tissue and day post infection:
+```{r correlation heatmap}
+#arrange the dataset by tissue and within each tissue by days post infection
+tissue_day <- MetaData[order(MetaData$tissue, MetaData$days),]
+tissue_day_names <- rownames(tissue_day)
+#create a heatmap displaying the correlation between the samples:
+aheatmap(c[tissue_day_names, tissue_day_names], Rowv=NA, Colv=NA, cellwidth = 1.2, cellheight = 1.2, annRow = list(Tissue=tissue_day$tissue, Day=as.factor(tissue_day$days)))
+```
+
+It looks like there is high correlation within each tissue independent of the time point. Also, there is high correlation between the three lymph node tissues and blood, which is expected as theses tissues types are physiologically very similar. Based on the heatmap, some outliers seem to be present. To assess whether this is due to biological variability (tissue differences), we will create a heatmap for tonsil, jejunum and colon each. We will create a heatmap containing axillary, mesenteric and genital-pelvic lymphnode and blood. We will group these tissue samples in one heatmap as there seems to be little variation between them which is physiologically reasonable. The color scale will be the same for all heatmaps to facilitate comparison.
+
+### Colon
+```{r colon correlation}
+colon <- MetaData[MetaData$tissue=="Colon",] #subset meta data by tissue of interest
+colon <- colon[order(colon$days),] #oder by days
+colon_names <- rownames(colon) #retrieve sample names
+aheatmap(c[colon_names, colon_names], Rowv=NA, Colv=NA, cellwidth = 5.5, cellheight = 5.5, annRow = list(Day=as.factor(colon$days)), breaks=0.8) #make heatmap of the subsetted correlation matrix
+```
+
+Sample 8909358261_A seems to be an outlier. 
+```{r}
+#get summary statistic for every sample
+kable(t(apply(c[colon_names,colon_names], 2, summary)), format='markdown')
+```
+
+This supports that sample 8909358261_A is an outlier. It has a mean correlation of 0.74 with the other colon samples. All other colon samples have a mean correlation of 0.89 or higher. We therefore remove this sample from our dataset.
+
+Remove sample 8909358261_A from data and metadata files:
+```{r}
+rawDATA <- rawDATA[,-as.numeric(colnames(rawDATA)=="8909358261_A")]
+MetaData <- MetaData[-as.numeric(rownames(MetaData)=="8909358261_A"),]
+```
+
+### Tonsil
+```{r tonsil correlation}
+tonsil <- MetaData[MetaData$tissue=="Tonsil",]
+tonsil <- tonsil[order(tonsil$days),]
+tonsil_names <- rownames(tonsil)
+aheatmap(c[tonsil_names, tonsil_names], Rowv=NA, Colv=NA, cellwidth = 9, cellheight = 9, annRow = list(Day=as.factor(tonsil$days)), breaks=0.8)
+```
+
+Sample 9982865061_I seems to be an outlier and sample 9377358065_K might be an outlier as well.
+
+```{r}
+#get summary statistic for every sample
+kable(t(apply(c[tonsil_names, tonsil_names], 2, summary)), format='markdown')
+```
+
+Both have a mean correlation with the other tonsil samples that is much lower than the mean values for the other tonsil samples, so we will remove these outliers from the dataset.
+```{r}
+rawDATA <- rawDATA[,-as.numeric(colnames(rawDATA)=="9982865061_I")]
+MetaData <- MetaData[-as.numeric(rownames(MetaData)=="9982865061_I"),]
+
+rawDATA <- rawDATA[,-as.numeric(colnames(rawDATA)=="9377358065_K")]
+MetaData <- MetaData[-as.numeric(rownames(MetaData)=="9377358065_K"),]
+```
+
+### Jejunum
+```{r jejunum correlation}
+jejunum <- MetaData[MetaData$tissue=="Jejunum",]
+jejunum <- jejunum[order(jejunum$days),]
+jejunum_names <- rownames(jejunum)
+aheatmap(c[jejunum_names, jejunum_names], Rowv=NA, Colv=NA, cellwidth = 9, cellheight = 9, annRow = list(Day=as.factor(jejunum$days)), breaks=0.8)
+#get summary statistic for every sample
+kable(t(apply(c[jejunum_names, jejunum_names], 2, summary)), format='markdown')
+```
+
+No outliers to be removed as all samples have a mean correlation of at least 0.88 with the other jejunum samples.
+
+### Blood and Lymph Nodes
+```{r blood and lymph nodes correlation}
+BLN <- c('Blood', 'axillary_LN', 'mesenteric_LN', 'genital_pelvic_LN')
+BLN <- MetaData[MetaData$tissue %in% BLN,]
+BLN <- droplevels(BLN)
+BLN <- BLN[order(BLN$tissue, BLN$days),]
+BLN_names <- rownames(BLN)
+aheatmap(c[BLN_names, BLN_names], Rowv=NA, Colv=NA, cellwidth = 2, cellheight = 2, annRow = list(Tissue=BLN$tissue, Day=as.factor(BLN$days)), breaks=0.8)
+#get summary statistic for every sample
+kable(t(apply(c[BLN_names, BLN_names], 2, summary)), format='markdown')
+```
+
+No outliers to be removed (mean correlation between blood/lymph samples of 0.879 or higher). We will therefore proceed to quantile normalization
+
+## Quantile normalisation: 
+```{r quantile normalization}
+#perform quantile normalization
+DATA <- normalize.quantiles(as.matrix(rawDATA), copy = FALSE)
+DATA <- as.data.frame(DATA)
+#log2 transform the data
+DATA <- log2(DATA)
+
+#Rename the rows and colunms 
+colnames(DATA) <- gsub("X", "", colnames(rawDATA))
+row.names(DATA) <- row.names(rawDATA)
+
+#display sample log2 intensity distribution
+boxplot(DATA,range=0, xaxt="n", main= 'sample log2 intensity distribution after quantile normalization')
+```
+
+We can see, that after outlier removal and quantile normalization, the log2 intensity distribution looks good now.
+
+## Export the new DATA and MetaDATA files:
+```{r export cleaned data}
+write.table(DATA, file="DATA.txt", row.names = TRUE, col.names = NA)
+write.table(MetaData, file="MetaData_cleaned.txt", row.names = TRUE, col.names = NA)
+```

@@ -1,0 +1,7 @@
+# Data
+
+This subdirectory is where all of the data (raw and processed) can be found: 
+
+  * For raw data files please see [Raw Data](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/tree/master/Data/Raw%20Data)
+
+  * For cleaned data files please see [Processed Data](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/tree/master/Data/Processed%20Data)

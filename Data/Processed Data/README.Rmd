@@ -1,0 +1,10 @@
+# Data cleaning and normalization:
+Group members responsible for this task: Christina Michalski and Heather A. MacKay
+
+1. Bring in the [raw data](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/tree/master/Data/Raw%20Data)
+2. Clean the data:
+    * Subset dataset to only include relevent tissues for analysis (i.e. the seven tissues for which there is at least three replicates at each time point (Jejunum, Blood, Tonsil, Colon as well as the axiallary, mesenteric and genital-pelvic lymph nodes))
+    * Identify and remove outliers within the subset dataset via tissue specififc correlation heatmap analysis between samples
+3. Quantile normalization of cleaned data
+
+For a more detailed explanation see [Data_Cleaning.md](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning.md)
