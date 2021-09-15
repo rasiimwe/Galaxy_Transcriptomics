@@ -9,7 +9,7 @@
 Our dataset contained 697 samples from SIV infected Rhesus monkeys. After removal of tissues for which less than 3 replicates for each time point were available, 231 samples from 7 tissues remained (blood, colon, jejunum, tonsil as well as the axillary, mesenteric and genital-pelvic lymph node). For data cleaning, we downloaded the raw data files from the GEO website (GSE80013) and plotted correlation matrices. In general, correlation was high between all samples with higher correlation between samples from the same tissue (Fig.1A). To identify outliers, inter-sample correlation was analyzed within each tissue. 1 outlier from the colon (Fig. 1B) and two outliers from the tonsil were removed.
 
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Results/Data/Processed%20Data/Data_Cleaning_files/figure-html/correlation%20heatmap-1.png"> 
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/correlation%20heatmap-1.png"> 
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 **Figure 1A: Inter-sample correlation before cleanup of all samples**
 
