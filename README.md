@@ -54,12 +54,12 @@
 </table>
 
  ### Project Deliverables
-- [Proposal](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Proposal/project_proposal.md)
-- [Progress report](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Progress%20Report/progress_report.md)
-- [Poster](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Poster/Poster-FINAL.pdf)
+- [Proposal](https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Proposal)
+- [Progress report](https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Progress%20Report/progress_report.md)
+- [Poster](https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Poster/Poster-FINAL.pdf)
 ---
 ### How to load and run the code on your personal computer:
-The code is written with the assumption that you clone the repository onto your desktop (i.e. Create project as subdirectory of: ~/Desktop) and the project directory is named "team_SIV-in-Rhesus-Monkeys". Additionally, because the data is too large to upload onto github, you MUST run the [Data_Cleaning.Rmd](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning.Rmd) to load the raw data and cleaned data to your personal device.
+The code is written with the assumption that you clone the repository onto your desktop (i.e. Create project as subdirectory of: ~/Desktop) and the project directory is named "team_SIV-in-Rhesus-Monkeys". Additionally, because the data is too large to upload onto github, you MUST run the [Data_Cleaning.Rmd](https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning.Rmd) to load the raw data and cleaned data to your personal device.
 
 ---
 ### 1.0 Introduction 
