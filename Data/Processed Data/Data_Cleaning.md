@@ -122,7 +122,7 @@ boxplot(lograwDATA, range = 0, ylab = "log2 intensity", xaxt = "n",
     main = "sample log2 intensity distribution")
 ```
 
-<img src ="https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/unnamed-chunk-5-1.png">
+<img src ="https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/unnamed-chunk-5-1.png">
 
 ## Sample to sample correlation:
 
@@ -137,7 +137,7 @@ We will look at the distribution of inter-sample variability:
 hist(c, sub = paste("Mean=", format(mean(c[upper.tri(c)]), digits = 3)), 
     main = "inter-sample variability")
 ```
-<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/inter-sample%20variability-1.png">
+<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/inter-sample%20variability-1.png">
 
 ```r
 min(c)
@@ -164,7 +164,7 @@ aheatmap(c[tissue_day_names, tissue_day_names], Rowv = NA, Colv = NA,
         Day = as.factor(tissue_day$days)))
 ```
 
-<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/correlation%20heatmap-1.png">
+<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/correlation%20heatmap-1.png">
 
 It looks like there is high correlation within each tissue independent of the time point. Also, there is high correlation between the three lymph node tissues and blood, which is expected as theses tissues types are physiologically very similar. Based on the heatmap, some outliers seem to be present. To assess whether this is due to biological variability (tissue differences), we will create a heatmap for tonsil, jejunum and colon each. We will create a heatmap containing axillary, mesenteric and genital-pelvic lymphnode and blood. We will group these tissue samples in one heatmap as there seems to be little variation between them which is physiologically reasonable. The color scale will be the same for all heatmaps to facilitate comparison.
 
@@ -179,7 +179,7 @@ aheatmap(c[colon_names, colon_names], Rowv = NA, Colv = NA, cellwidth = 5.5,
     breaks = 0.8)  #make heatmap of the subsetted correlation matrix
 ```
 
-<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/colon%20correlation-1.png">
+<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/colon%20correlation-1.png">
 
 Sample 8909358261_A seems to be an outlier. 
 
@@ -247,7 +247,7 @@ aheatmap(c[tonsil_names, tonsil_names], Rowv = NA, Colv = NA,
     breaks = 0.8)
 ```
 
-<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/tonsil%20correlation-1.png">
+<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/tonsil%20correlation-1.png">
 
 Sample 9982865061_I seems to be an outlier and sample 9377358065_K might be an outlier as well.
 
@@ -317,7 +317,7 @@ aheatmap(c[jejunum_names, jejunum_names], Rowv = NA, Colv = NA,
     breaks = 0.8)
 ```
 
-<img src ="https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/jejunum%20correlation-1.png">
+<img src ="https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/jejunum%20correlation-1.png">
 
 ```r
 # get summary statistic for every sample
@@ -376,7 +376,7 @@ aheatmap(c[BLN_names, BLN_names], Rowv = NA, Colv = NA, cellwidth = 2,
     breaks = 0.8)
 ```
 
-<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/blood%20and%20lymph%20nodes%20correlation-1.png">
+<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/blood%20and%20lymph%20nodes%20correlation-1.png">
 
 ```r
 # get summary statistic for every sample
@@ -540,7 +540,7 @@ row.names(DATA) <- row.names(rawDATA)
 boxplot(DATA, range = 0, xaxt = "n", main = "sample log2 intensity distribution after quantile normalization")
 ```
 
-<img src = "https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning_files/figure-html/quantile%20normalization-1.png">
+<img src = "https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning_files/figure-html/quantile%20normalization-1.png">
 
 We can see, that after outlier removal and quantile normalization, the log2 intensity distribution looks good now.
 
