@@ -1,0 +1,252 @@
+---
+output: 
+  html_document: 
+    keep_md: yes
+---
+# Question 3: Do transcriptomic changes in lymph node tissues vary by lymph node location?
+
+Using Limma, we want to fit linear models to observe differences in gene expression based on lymph node location to answer the question of whether or not there will be changes in gene expression depending on lymph node location.
+
+```{r, include=FALSE}
+library(limma)
+library(dplyr)
+library(ggplot2)
+library(stringi); library(stringr)
+library(NMF)
+library(pca3d)
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+opts_knit$set(root.dir = "C:/Users/Christina/Desktop/Bioinformatics/group project/team_SIV-in-Rhesus-Monkeys")
+```
+
+# Load cleaned data and metadata from Data Cleaning Files
+```{r}
+##Load cleaned data and metadata
+DATA <- read.table("../team_SIV-in-Rhesus-Monkeys/Data/Processed Data/DATA.txt",header = TRUE, row.names = 1) 
+colnames(DATA) <- gsub("X", "", colnames(DATA))
+MetaData <-  read.table("../team_SIV-in-Rhesus-Monkeys/Data/Processed Data/MetaData_cleaned.txt", header = TRUE, row.names = 1)
+```
+
+# Creating Contrast Matrices
+First we create a design a contrast matrix to compare lymph node (LN) type. We set genital pelvic LN as baseline since the primary site of infection was in the vaginal tissue.
+```{r}
+des_M <- model.matrix(~0+tissue+days, MetaData) # We get the design matrix
+contrast_LN1 <- makeContrasts(tissuegenital_pelvic_LN - tissueaxillary_LN, levels = des_M) # Set genital pelvic LN as baseline and contrast with axillary LN
+
+contrast_LN2 <- makeContrasts(tissuegenital_pelvic_LN - tissuemesenteric_LN, levels = des_M) # Same as contrast_LN1 but comparing with mesenteric LN
+
+contrast_LN3 <- makeContrasts(tissuemesenteric_LN - tissueaxillary_LN, levels = des_M) #compare between axillary LN and mesenteric LN
+
+#Just to see expected output:
+contrast_LN1
+```
+
+# Fit Linear Model
+Next we fit our linear model and look at differentially expressed genes between genital pelvic LN in contrast to axillary LN:
+```{r}
+fitGvA_LN <- contrasts.fit(lmFit(DATA, des_M), contrast_LN1)
+fit_toptableGvA_LN <- topTable(eBayes(fitGvA_LN), n = Inf)
+head(fit_toptableGvA_LN)
+```
+
+We do the same between genital pelvic LN and mesenteric LN:
+```{r}
+fitGvM_LN <- contrasts.fit(lmFit(DATA, des_M), contrast_LN2)
+fit_toptableGvM_LN <- topTable(eBayes(fitGvM_LN), n = Inf)
+head(fit_toptableGvM_LN)
+```
+
+Just to check differences between axillary and mesenteric LN:
+```{r}
+fitAvM_LN <- contrasts.fit(lmFit(DATA, des_M), contrast_LN3)
+fit_toptableAvM_LN <- topTable(eBayes(fitAvM_LN), n = Inf)
+head(fit_toptableAvM_LN)
+```
+
+# Hits for Differential Gene expression between Lymph Nodes 
+Now we observe how many probes are differentially expressed between lymph nodes:
+
+## 1. Between Genital-Pelvic and Axillary Lymph Nodes:
+```{r}
+# Filter based on p-value <= 0.001
+Top_hitsGvA_LN <- fit_toptableGvA_LN %>% filter(P.Value <= 1e-3)
+nrow(Top_hitsGvA_LN)
+
+# Filter based on p-value <= 0.05
+Top_adjpGvA <- fit_toptableGvA_LN %>% filter(adj.P.Val <= 0.05)
+nrow(Top_adjpGvA)
+```
+
+## 2. Between genital-pelvic and mesenteric lymph nodes:
+```{r}
+# Filter based on p-value <= 0.001
+Top_hitsGvM_LN <- fit_toptableGvM_LN %>% filter(P.Value <=1e-3)
+nrow(Top_hitsGvM_LN)
+
+# Filter based on adjusted p-value <= 0.05
+Top_adjpGvM <- fit_toptableGvM_LN %>% filter(adj.P.Val <= 0.05)
+nrow(Top_adjpGvM)
+```
+
+## 3. Between axillary and mesenteric lymph nodes:
+```{r}
+# Filter based on p-value <= 0.001
+Top_hitsAvM_LN <- fit_toptableAvM_LN %>% filter(P.Value <= 1e-3)
+nrow(Top_hitsAvM_LN)
+
+# Filter based on adjusted p-value <= 0.05
+Top_adjpAvM <- fit_toptableAvM_LN %>% filter(adj.P.Val <= 0.05)
+nrow(Top_adjpAvM)
+```
+
+# Check distribution of p-values for these models
+```{r}
+pval_gvm <- fit_toptableGvM_LN$P.Value
+pval_gva <- fit_toptableGvA_LN$P.Value
+pval_avm <- fit_toptableAvM_LN$P.Value
+compareModel <-  data.frame(model=rep(c("gvm","gva","avm"), each = nrow(fit_toptableGvM_LN)), P.Val = c(pval_gvm, pval_gva, pval_avm))
+ggplot(compareModel, aes(x= P.Val, fill = model)) + geom_density(alpha = 0.3)
+```
+
+Based on this plot, it seems like something may be wrong with the test. Perhaps the test assumes that the data fits some distribution does not fit. Perhaps this may be an error due to not including the interaction term of tissue*days.
+
+Let's look at that next...
+
+# Creating Contrast Matrices and include the days*tissue interaction
+First we create a design a contrast matrix to compare lymph node (LN) type. We set genital pelvic LN as baseline since the primary site of infection was in the vaginal tissue.
+```{r}
+des_Mtd <- model.matrix(~0+tissue+days+tissue*days, MetaData) # We get the design matrix
+colnames(des_Mtd) <- str_replace(colnames(des_Mtd),":", "_")
+contrast.ga <- makeContrasts(tissuegenital_pelvic_LN - tissueaxillary_LN, levels = des_Mtd) # Set genital pelvic LN as baseline and contrast with axillary LN
+
+contrast.gm <- makeContrasts(tissuegenital_pelvic_LN - tissuemesenteric_LN, levels = des_Mtd) # Same as contrast_LN1 but comparing with mesenteric LN
+
+contrast.am <- makeContrasts(tissuemesenteric_LN - tissueaxillary_LN, levels = des_Mtd) #compare between axillary LN and mesenteric LN
+
+#Just to see expected output:
+contrast.ga
+```
+
+# Fit Linear Model with the interaction term
+Next we fit our linear model and look at differentially expressed genes between genital pelvic LN in contrast to axillary LN:
+```{r}
+fitGvA_LN.td <- contrasts.fit(lmFit(DATA, des_Mtd), contrast.ga)
+fit_toptableGvA_LN.td <- topTable(eBayes(fitGvA_LN.td), n = Inf)
+fit_toptableGvA_LN.td$probe.id <- rownames(fit_toptableGvA_LN.td)
+head(fit_toptableGvA_LN.td)
+```
+
+Fit the linear models between genital pelvic LN and mesenteric LN:
+```{r}
+fitGvM_LN.td <- contrasts.fit(lmFit(DATA, des_Mtd), contrast.gm)
+fit_toptableGvM_LN.td <- topTable(eBayes(fitGvM_LN.td), n = Inf)
+fit_toptableGvM_LN.td$probe.id <- rownames(fit_toptableGvM_LN.td)
+head(fit_toptableGvM_LN.td)
+```
+
+Between axillary and mesenteric LNs:
+```{r}
+fitAvM_LN.td <- contrasts.fit(lmFit(DATA, des_Mtd), contrast.am)
+fit_toptableAvM_LN.td <- topTable(eBayes(fitAvM_LN.td), n = Inf)
+fit_toptableAvM_LN.td$probe.id <- rownames(fit_toptableAvM_LN.td)
+head(fit_toptableAvM_LN.td)
+```
+
+
+# Hits for Differential Gene expression between Lymph Nodes with Interaction Term added
+Now we observe how many probes are differentially expressed between lymph nodes:
+
+## 1. Between Genital-Pelvic and Axillary Lymph Nodes:
+```{r}
+# Filter based on p-value <= 0.001
+Top_hitsGvA_LN.td <- fit_toptableGvA_LN.td %>% filter(P.Value <= 1e-3)
+nrow(Top_hitsGvA_LN.td)
+```
+55 differentially expressed genes between genital-pelvic and axillary lymph nodes at p-value <= 1e-3
+
+```{r}
+# Filter based on fdr <= 0.05
+Top_adjpGvA.td <- fit_toptableGvA_LN.td %>% filter(adj.P.Val <= 0.05)
+nrow(Top_adjpGvA.td)
+```
+11 differentially expressed genes between genital-pelvic and axillary lymph nodes at fdr <= 0.05
+
+## 2. Between genital-pelvic and mesenteric lymph nodes:
+```{r}
+# Filter based on p-value <= 0.001
+Top_hitsGvM_LN.td <- fit_toptableGvM_LN.td %>% filter(P.Value <=1e-3)
+nrow(Top_hitsGvM_LN.td)
+```
+55 differentially expressed genes between genital-pelvic and mesenteric lymph nodes at p-value <= 1e-3
+
+```{r}
+# Filter based on fdr <= 0.05
+Top_adjpGvM.td <- fit_toptableGvM_LN.td %>% filter(adj.P.Val <= 0.05)
+nrow(Top_adjpGvM.td)
+```
+13 differentially expressed genes between genital-pelvic and mesenteric lymph nodes at fdr <= 0.05
+
+## 3. Between axillary and mesenteric lymph nodes:
+```{r}
+# Filter based on p-value <= 0.001
+Top_hitsAvM_LN.td <- fit_toptableAvM_LN.td %>% filter(P.Value <= 1e-3)
+nrow(Top_hitsAvM_LN.td)
+```
+69 DE genes between axillary and mesenteric lymph nodes at p-value <= 1e-3
+
+```{r}
+# Filter based on adjusted fdr <= 0.05
+Top_adjpAvM.td <- fit_toptableAvM_LN.td %>% filter(adj.P.Val <= 0.05)
+nrow(Top_adjpAvM.td)
+```
+28 DE genes between axillary and mesenteric lymph nodes at fdr <= 0.05
+
+```{r}
+pval_gvmtd <- fit_toptableGvM_LN.td$P.Value
+pval_gvatd <- fit_toptableGvA_LN.td$P.Value
+pval_avmtd <- fit_toptableAvM_LN.td$P.Value
+compareModel <-  data.frame(model=rep(c("gvm","gva","avm"), each = nrow(fit_toptableGvM_LN.td)), P.Val = c(pval_gvmtd, pval_gvatd, pval_avmtd))
+ggplot(compareModel, aes(x= P.Val, fill = model)) + geom_density(alpha = 0.3)
+```
+
+It seems likely that the test does not fit our data well enough. Let's see if there are differences between the lymph nodes at all.
+
+# Unsupervised Hierarchical Clustering
+To determine whether there are difference in the transcriptomic changes between the lymph nodes, we will perform unsupervised hierarchical clustering. We decided to use euclidean distance measure and complete linkage clustering to achieve balanced dendrograms.
+
+```{r Unsupervised-Hierarchical-Clustering}
+#subset meta data and data including only the samples that come from a lymph node
+MetaLN <- MetaData[MetaData$tissue=='axillary_LN' | MetaData$tissue=='mesenteric_LN' | MetaData$tissue=='genital_pelvic_LN',]
+
+LN.samples <- rownames(MetaLN)
+LN <- DATA[,LN.samples]
+
+
+#clustering with days as names
+colnames(LN) <- MetaLN$days
+d <- dist(as.matrix(t(LN)), method= "euclidean")   # find distance matrix 
+hc <- hclust(d, method = "complete")                # apply hierarchical clustering 
+plot(hc, cex=0.5)
+
+#clustering with tissues as names
+colnames(LN) <- MetaLN$tissue
+d2 <- dist(as.matrix(t(LN)), method= "euclidean")   
+hc2 <- hclust(d2, method = "complete")                
+plot(hc2, cex=0.5)
+```
+
+The two plots are depicting the same clustering. In the first plot, the samples are annotated by their time point. We can see that the "day 0" samples cluster separatly from the samples from the other days. The "day 0" samples are from uninfected control so it is not unsurprising that these samples are less similar to the other ones. Interestingly, there is no clustering by lymph lode location, indicating that the transcriptomic changes between the lymph nodes are not significantly different.
+
+# PCA 
+For better visiual representation, we will also perform principal component analysis:
+```{r PCA}
+#calculate PCA
+pcaLN <- prcomp(t(LN), scale. = TRUE)
+#print PCA with labels=days
+pca2d(pcaLN, radius = 1, group=MetaLN$days, shape = "sphere", palette = c("red", "blue", "limegreen", "chocolate1", "purple4"), legend="bottomright")
+#print PCA with labels=lymph node type
+pca2d(pcaLN, radius = 1, group=MetaLN$tissue, shape = "sphere", palette = c("red", "blue", "limegreen"), legend="bottomright")
+```
+
+The results are (as expected) the same as those obtained by unsupervised hierarchical clustering. In conclusion, we infer that the location of the lymph node and hence the distance from infection site does not have a significant impact on transcriptomic changes in the first 10 days after SIV infection. This suggests rapid viral dissemination throughout the entire host and/or rapid migration of immune cells that have encountered SIV antigens.

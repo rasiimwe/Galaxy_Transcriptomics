@@ -1,0 +1,291 @@
+---
+title: "GO and KEGG analysis"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+```{r include=FALSE}
+source("https://bioconductor.org/biocLite.R")
+library(knitr)
+library(limma)
+library("illuminaHumanv4.db")
+library(GO.db)
+library(dplyr)
+knitr::opts_chunk$set(echo = TRUE)
+opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)
+```
+
+This file contains quick GO and KEGG analyses using the goana and kegga functions that are included in limma. We will first load the cleaned data and metadata file as well as the "toptables" obtained from the quadratic model in the linear model fitting analysis. The output will not be printed in the md file for better legibility.
+
+```{r include=FALSE, echo=FALSE}
+##Load cleaned data and metadata
+DATA <- read.table("C:/Users/Christina/Desktop/Bioinformatics/group project/team_SIV-in-Rhesus-Monkeys/Data Cleaning/DATA.txt",header = TRUE, row.names = 1) 
+colnames(DATA) <- gsub("X", "", colnames(DATA))
+MetaData <-  read.table("C:/Users/Christina/Desktop/Bioinformatics/group project/team_SIV-in-Rhesus-Monkeys/Data Cleaning/MetaData_cleaned.txt", header = TRUE, row.names = 1)
+```
+
+```{r reproduce top table for each tissue, echo=FALSE}
+DATA_tissue <- function(Tissue) {
+  MetaData_tissue <- subset(MetaData, MetaData$tissue == Tissue)
+  MetaData_tissue <- MetaData_tissue[with(MetaData_tissue, order(days)), ]
+  DATA_tissue <- DATA[, c(row.names(MetaData_tissue))]
+  return(DATA_tissue)
+}
+
+TT <- function(Tissue) {
+  MetaData_tissue <- subset(MetaData, MetaData$tissue == Tissue)
+  MetaData_tissue <- MetaData_tissue[with(MetaData_tissue, order(days)), ]
+  DATA_tissue <- DATA[, c(row.names(MetaData_tissue))]
+  Design_tissue <- model.matrix(~days+I(days^2), data = MetaData_tissue)
+  Model_tissue <- eBayes(lmFit(DATA_tissue, Design_tissue))
+  TT_tissue <- topTable(Model_tissue, coef = 2:3, n = Inf)
+  TT_tissue$probe.id <- row.names(TT_tissue)
+  TT_tissue <- (TT_tissue %>% filter(adj.P.Val <= 0.05))
+  return(TT_tissue)
+}
+
+#get data frame for all tissues
+DATA_Blood <- DATA_tissue('Blood')
+DATA_Jejunum <- DATA_tissue('Jejunum')
+DATA_Colon <- DATA_tissue('Colon')
+DATA_Tonsil <- DATA_tissue('Tonsil')
+DATA_ALN <- DATA_tissue('axillary_LN')
+DATA_MLN <- DATA_tissue('mesenteric_LN')
+DATA_GLN <- DATA_tissue('genital_pelvic_LN')
+#get top tables for all tissues
+TT_Blood <- TT('Blood')
+TT_Jejunum <- TT('Jejunum')
+TT_Colon <- TT('Colon')
+TT_Tonsil <- TT('Tonsil')
+TT_ALN <- TT('axillary_LN')
+TT_MLN <- TT('mesenteric_LN')
+TT_GLN <- TT('genital_pelvic_LN')
+```
+
+## Blood
+Perform all analysis for blood first and then repeat it for the other tissue types. First we need to obtain the gene names for each probe. We will do this using the illuminaHumanv4 database in concordance with the platform the samples were run on.
+
+### Get ENTREZ IDs from DE probes in blood
+```{r}
+#write code as function to make re-usability easier
+add.entrez <- function(TT_Tissue){
+  #obtain probe ids for DE probes in blood:
+  probe.ids <- TT_Tissue$probe.id
+  #get entrez ID for each probe
+  entrez.ids <- unlist(mget(probe.ids, illuminaHumanv4ENTREZID))
+  #add to top table 
+  TT_Tissue$entrez.id <- entrez.ids
+  return(TT_Tissue)
+}
+
+#apply to blood
+TT_Blood <- add.entrez(TT_Blood)
+```
+We will remove all non-annotated probes:
+```{r}
+#number of DE probes in blood:
+nrow(TT_Blood)
+# remove rows that contain non-mapped probes
+TT_Blood <- TT_Blood[complete.cases(TT_Blood$entrez.id), ]
+# number of probes after removing non-annotated probes
+nrow(TT_Blood)
+length(unique(TT_Blood$entrez.id))
+```
+After removing non-annotated probes, 2983 of the 4103 probes remain. The 2983 annotated probes correspond to 2825 genes.
+
+```{r}
+#get entrez id for these probes out of the data frame:
+blood.DE.entrez <- TT_Blood$entrez.id
+```
+
+
+### GO analysis
+```{r}
+blood.go.de <- goana(blood.DE.entrez, trend=TRUE) #trend=TRUE will adjust for gene abundance
+#displaya table with the 20 GO terms with the lowest p-value, including only "biological processes" in the list.
+kable(topGO(blood.go.de, ontology = "BP", sort = "DE"), format="markdown", caption = "Blood GO analysis")
+```
+
+### KEGG analysis
+```{r}
+blood.kegg.de <- kegga(blood.DE.entrez, species = "Hs")
+blood.kegg.de <- blood.kegg.de[order(blood.kegg.de$P.DE),]
+blood.kegg.de <- subset(blood.kegg.de, P.DE <= 0.05)
+kable(blood.kegg.de, format = "markdown", caption = "Blood KEGG analysis")
+```
+
+Interestingly, the main GO terms associated with the differentially expressed probes in the blood are associated with viral lif cycle (which is unsurprising) but also protein translation/transport and metaoblic processes. No immunology-related GO term is present in the "top20 list". Only two KEGG pathways are significantly associated with the DE probes from blood (p value cutoff = 0.05). 
+
+We will now repeat the same analysis for the other tissues. 
+
+## Colon
+```{r}
+#add entrez id tp DE probes in top table:
+TT_Colon <- add.entrez(TT_Colon)
+#number of DE probes in the colon:
+nrow(TT_Colon)
+# remove rows that contain non-mapped probes
+TT_Colon <- TT_Colon[complete.cases(TT_Colon$entrez.id), ]
+# number of probes after removing non-annotated probes
+nrow(TT_Colon)
+length(unique(TT_Colon$entrez.id))
+```
+In the colon, 432 (431 unique genes) of the 595 DE probes are annotated.
+
+```{r}
+#get entrez id for these probes:
+colon.DE.entrez <- TT_Colon$entrez.id
+#GO analysis
+colon.go.de <- goana(colon.DE.entrez, trend=TRUE) 
+sorted.go.colon <- topGO(colon.go.de, ontology = "BP", sort="DE")
+kable(sorted.go.colon, format="markdown", caption = "Colon GO analysis")
+#KEGG analysis
+colon.kegg.de <- kegga(colon.DE.entrez, species = "Hs")
+colon.kegg.de <- colon.kegg.de[order(colon.kegg.de$P.DE),]
+kable(subset(colon.kegg.de, P.DE <= 0.05), format = "markdown", caption = "Colon KEGG analysis")
+```
+
+## Jejunum
+```{r}
+#add entrez id of DE probes in top table:
+TT_Jejunum <- add.entrez(TT_Jejunum)
+#number of DE probes in the colon:
+nrow(TT_Jejunum)
+# remove rows that contain non-mapped probes
+TT_Jejunum <- TT_Jejunum[complete.cases(TT_Jejunum$entrez.id), ]
+# number of probes after removing non-annotated probes
+nrow(TT_Jejunum)
+length(unique(TT_Jejunum$entrez.id))
+```
+After removal of non-annotated probes, 3977 of the 5463 probes remain, corresponding to 3668 genes.
+
+```{r}
+#get entrez id for these probes:
+jejunum.DE.entrez <- TT_Jejunum$entrez.id
+#GO analysis
+jejunum.go.de <- goana(jejunum.DE.entrez, trend=TRUE) 
+sorted.go.jejunum <- topGO(jejunum.go.de, ontology = "BP", sort="DE")
+kable(sorted.go.jejunum, format="markdown", caption = "Jejunum GO analysis")
+#KEGG analysis
+jejunum.kegg.de <- kegga(jejunum.DE.entrez, species = "Hs")
+jejunum.kegg.de <- jejunum.kegg.de[order(jejunum.kegg.de$P.DE),]
+kable(subset(jejunum.kegg.de, P.DE <= 0.05), format = "markdown", caption = "Jejunum KEGG analysis")
+```
+
+## Tonsil
+```{r}
+#add entrez id of DE probes in top table:
+TT_Tonsil <- add.entrez(TT_Tonsil)
+#number of DE probes in the colon:
+nrow(TT_Tonsil)
+# remove rows that contain non-mapped probes
+TT_Tonsil <- TT_Tonsil[complete.cases(TT_Tonsil$entrez.id), ]
+# number of probes after removing non-annotated probes
+nrow(TT_Tonsil)
+length(unique(TT_Tonsil$entrez.id))
+```
+After removal of non-annotated probes, 233 (232 unique genes) of the 316 probes remain.
+
+```{r}
+#get entrez id for these probes:
+tonsil.DE.entrez <- TT_Tonsil$entrez.id
+#GO analysis
+tonsil.go.de <- goana(tonsil.DE.entrez, trend=TRUE) 
+sorted.go.tonsil <- topGO(tonsil.go.de, ontology = "BP", sort="DE")
+kable(sorted.go.tonsil, format="markdown", caption = "Tonsil GO analysis")
+#KEGG analysis
+tonsil.kegg.de <- kegga(tonsil.DE.entrez, species = "Hs")
+tonsil.kegg.de <- tonsil.kegg.de[order(tonsil.kegg.de$P.DE),]
+kable(subset(tonsil.kegg.de, P.DE <= 0.05), format = "markdown", caption = "Tonsil KEGG analysis")
+```
+
+## Axillary Lymph Node
+```{r}
+#add entrez id of DE probes in top table:
+TT_ALN <- add.entrez(TT_ALN)
+#number of DE probes in the colon:
+nrow(TT_ALN)
+# remove rows that contain non-mapped probes
+TT_ALN <- TT_ALN[complete.cases(TT_ALN$entrez.id), ]
+# number of probes after removing non-annotated probes
+nrow(TT_ALN)
+length(unique(TT_ALN$entrez.id))
+```
+After removal of non-annotated probes, 1831 of the 2561 probes remain, resulting in 1777 uniqe entrez IDs.
+
+```{r}
+#get entrez id for these probes:
+aln.DE.entrez <- TT_ALN$entrez.id
+#GO analysis
+aln.go.de <- goana(aln.DE.entrez, trend=TRUE) 
+sorted.go.aln <- topGO(aln.go.de, ontology = "BP", sort="DE")
+kable(sorted.go.aln, format="markdown", caption = "Axillary Lymph Node GO analysis")
+#KEGG analysis
+aln.kegg.de <- kegga(aln.DE.entrez, species = "Hs")
+aln.kegg.de <- aln.kegg.de[order(aln.kegg.de$P.DE),]
+kable(subset(aln.kegg.de, P.DE <= 0.05), format = "markdown", caption = "Axillary Lymph Node KEGG analysis")
+```
+
+## Mesenteric Lymph Node
+```{r}
+#add entrez id of DE probes in top table:
+TT_MLN <- add.entrez(TT_MLN)
+#number of DE probes in the colon:
+nrow(TT_MLN)
+# remove rows that contain non-mapped probes
+TT_MLN <- TT_MLN[complete.cases(TT_MLN$entrez.id), ]
+# number of probes after removing non-annotated probes
+nrow(TT_MLN)
+length(unique(TT_MLN$entrez.id))
+```
+After removal of non-annotated probes, 1489 (1450 unique genes) of the 2063 probes remain.
+
+```{r}
+#get entrez id for these probes:
+mln.DE.entrez <- TT_MLN$entrez.id
+#GO analysis
+mln.go.de <- goana(mln.DE.entrez, trend=TRUE) 
+sorted.go.mln <- topGO(mln.go.de, ontology = "BP", sort="DE")
+kable(sorted.go.mln, format="markdown", caption = "Mesenteric Lymph Node GO analysis")
+#KEGG analysis
+mln.kegg.de <- kegga(mln.DE.entrez, species = "Hs")
+mln.kegg.de <- mln.kegg.de[order(mln.kegg.de$P.DE),]
+kable(subset(mln.kegg.de, P.DE <= 0.05), format = "markdown", caption = "Mesenteric Lymph Node KEGG analysis")
+```
+
+## Genital Pelvic Lymph Node
+```{r}
+#add entrez id of DE probes in top table:
+TT_GLN <- add.entrez(TT_GLN)
+#number of DE probes in the colon:
+nrow(TT_GLN)
+# remove rows that contain non-mapped probes
+TT_GLN <- TT_GLN[complete.cases(TT_GLN$entrez.id), ]
+# number of probes after removing non-annotated probes
+nrow(TT_GLN)
+length(unique(TT_GLN$entrez.id))
+```
+After removal of non-annotated probes, 1366 of the 1886 probes remain, corresponding to 1338 unique genes.
+
+```{r}
+#get entrez id for these probes:
+gln.DE.entrez <- TT_GLN$entrez.id
+#GO analysis
+gln.go.de <- goana(gln.DE.entrez, trend=TRUE) 
+sorted.go.gln <- topGO(gln.go.de, ontology = "BP", sort="DE")
+kable(sorted.go.gln, format="markdown", caption = "Genital-Pelvic Lymph Node GO analysis")
+#KEGG analysis
+gln.kegg.de <- kegga(gln.DE.entrez, species = "Hs")
+gln.kegg.de <- gln.kegg.de[order(gln.kegg.de$P.DE),]
+kable(subset(gln.kegg.de, P.DE <= 0.05), format = "markdown", caption = "Genital-Pelvic Lymph Node KEGG analysis")
+```
+
+## Conclusion
+In conclusion, the main GO biological processes associated with the DE genes after SIV infection are related to protein translation and metabolic processes as well as viral life cycle. Viral replication requires translation using the host's ribosome, increasing the energy demand within infected host cells. The results suggests rapid replication of the virus in host cells throughout the entire body. 
+
+Why the DE probes from several tissues are significantly enriched for Arrhythmogenic right ventricular cardiomyopathy is not obvious and would require more analysis of the genes that drive the enrichment. 
+
+Interestingly, the only tissue where an immune-related KEGG pathway is significantly enriched is the colon ("Cytokine-cytokine receptor interaction" pathway). In general, there are significantly less immune cells present in the colon compared to all other tissues analyzed. The enrichment for cytokine-cytokine receptor interaction in the colon might indicate infiltration of immune cells (in response to infection of colon cells). This would have to be confirmed on a functional level. Alternatively, colon cells might upregulate cytokine receptors in response to circulating cytokines.
+
+It is striking, that the KEGG pathway "ribosome" appears as significantly enriched (with very low p values) across all tissue types. This has potential implications for the significance of the microarray results. The transcriptomic results suggest major changes in protein translation upon SIV infection. If true, the translation of different mRNA transcripts might be affected to a different extent (e.g. increased translation of mRNAs with certain 3'UTR structures but not others). In how far the transcriptomic changes translate into difference on the protein level is unclear in every study but will be complicated by changes in the ribosomal machinery. Therefore, functional studies to strengthen the findings from this microarray analysis are esstential.

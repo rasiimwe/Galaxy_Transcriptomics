@@ -1,0 +1,80 @@
+---
+title: "Gene Symbol Identification"
+output: 
+  html_document:
+    keep_md: yes
+---
+
+# Installation and Packages
+```{r packages, message=FALSE}
+# Refer to GSEA Updating Model Top Tables.Rmd first
+# Install Bioconductor package 
+# source("https://bioconductor.org/biocLite.R")
+# biocLite("illuminaHumanv4.db")
+
+library("illuminaHumanv4.db")
+```
+
+# Match probe IDs to Reference Genome Database
+## Axillary Lymph Node
+```{r}
+# Matching Probe ID to gene symbols for Axillary Lymph Node
+illuminaHumanv4SYMBOL <- as.data.frame(illuminaHumanv4SYMBOL)
+illuminaHumanv4SYMBOL$probe.id <- illuminaHumanv4SYMBOL$probe_id
+illuminaHumanv4SYMBOL$probe_id <- NULL
+TT_ALN_Gene.id <- full_join(TT_ALN, illuminaHumanv4SYMBOL, by = "probe.id")
+TT_ALN_Gene.id <- na.omit(TT_ALN_Gene.id)
+```
+Repeat for rest of the tissues:
+
+## Colon
+```{r}
+# Matching Probe ID to gene symbols for Colon
+TT_Colon_Gene.id <- full_join(TT_Colon, illuminaHumanv4SYMBOL, by = "probe.id")
+TT_Colon_Gene.id <- na.omit(TT_Colon_Gene.id)
+```
+
+## Blood
+```{r}
+# Matching Probe ID to gene symbols for Blood
+TT_Blood_Gene.id <- full_join(TT_Blood, illuminaHumanv4SYMBOL, by = "probe.id")
+TT_Blood_Gene.id <- na.omit(TT_Blood_Gene.id)
+```
+
+## Jejunum
+```{r}
+# Matching Probe ID to gene symbols for Jejunum
+TT_Jejunum_Gene.id <- full_join(TT_Jejunum, illuminaHumanv4SYMBOL, by = "probe.id")
+TT_Jejunum_Gene.id <- na.omit(TT_Jejunum_Gene.id)
+```
+
+## Tonsil
+```{r}
+# Matching Probe ID to gene symbols for Tonsil
+TT_Tonsil_Gene.id <- full_join(TT_Tonsil, illuminaHumanv4SYMBOL, by = "probe.id")
+TT_Tonsil_Gene.id <- na.omit(TT_Tonsil_Gene.id)
+```
+
+## Genital Pelvic Lymph Node
+```{r}
+# Matching Probe ID to gene symbols for Genital Pelvic Lymph Node
+TT_GLN_Gene.id <- full_join(TT_GLN, illuminaHumanv4SYMBOL, by = "probe.id")
+TT_GLN_Gene.id <- na.omit(TT_GLN_Gene.id)
+```
+## Mesenteric Lymph Node
+```{r}
+# Matching Probe ID to gene symbols for Mesenteric Lymph Node
+TT_MLN_Gene.id <- full_join(TT_MLN, illuminaHumanv4SYMBOL, by = "probe.id")
+TT_MLN_Gene.id <- na.omit(TT_MLN_Gene.id)
+```
+
+# Save in a Data Table
+```{r}
+write.table(TT_ALN_Gene.id, file="TT_ALN_GeneID.txt", row.names = TRUE, col.names = NA)
+write.table(TT_MLN_Gene.id, file="TT_MLN_GeneID.txt", row.names = TRUE, col.names = NA)
+write.table(TT_GLN_Gene.id, file="TT_GLN_GeneID.txt", row.names = TRUE, col.names = NA)
+write.table(TT_Colon_Gene.id, file="TT_Colon_GeneID.txt", row.names = TRUE, col.names = NA)
+write.table(TT_Jejunum_Gene.id, file="TT_Jejunum_GeneID.txt", row.names = TRUE, col.names = NA)
+write.table(TT_Tonsil_Gene.id, file="TT_Tonsil_GeneID.txt", row.names = TRUE, col.names = NA)
+write.table(TT_Blood_Gene.id, file="TT_Blood_GeneID.txt", row.names = TRUE, col.names = NA)
+```
