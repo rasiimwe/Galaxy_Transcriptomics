@@ -8,7 +8,7 @@ Our dataset and main objective have not changed since our proposal. Our main obj
 Progress of the analyses
 ------------------------
 
-The data has been [imported, cleaned and normalized](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Data/Processed%20Data/Data_Cleaning.md): The tissues of interest were selected, reducing the sample size from 697 to 231. Three further samples were removed (outliers), resulting in a final number of 228 samples. These samples were quantile normalized and log2 transformed to allow statistical analysis.&nbsp;
+The data has been [imported, cleaned and normalized](https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Data/Processed%20Data/Data_Cleaning.md): The tissues of interest were selected, reducing the sample size from 697 to 231. Three further samples were removed (outliers), resulting in a final number of 228 samples. These samples were quantile normalized and log2 transformed to allow statistical analysis.&nbsp;
 
 
 **Question 1:** Is gene expression affected over time (i.e. by SIV infection) in different tissues?
@@ -17,7 +17,7 @@ A linear model for each of the seven tissues is fit to identify differential gen
 
 1. Parameter specification: We were advised that including animal effect as a random effect and fitting a mixed effect model was out of the scope of this class, therefore when determining the parameters to include in the models we only had ‘time’ to consider. Therefore we selected ‘time’ and ‘time^2’ as the parameters for the linear models fit to each tissue. 
 
-2. Fitting linear models: We fit 14 linear models (2 models per tissue type with one containing a quadratic of time and the other just looking at change in gene expression with respect to time) using the limma package. [Fitting linear models - tissue specific gene expression through time](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%201/Linear%20Models/Exploratory%20Fitting/Exploration_of_different_models_for_tissue_specific_gene_expression.md)
+2. Fitting linear models: We fit 14 linear models (2 models per tissue type with one containing a quadratic of time and the other just looking at change in gene expression with respect to time) using the limma package. [Fitting linear models - tissue specific gene expression through time](https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Methods/Question%201/Linear%20Models/Exploratory%20Fitting/Exploration_of_different_models_for_tissue_specific_gene_expression.md)
 
 3. Testing empirical reliability and goodness of fit: For each tissue, we will compare the linear model with the quadratic model, to determine which best represents the data. Using the F-tests in regression we will determine the Pbig (with quadratic) value and Psmall (without quadratic) value. By looking at the F distribution and  P-value we can plot a histogram and determine if the Pbig or Psmall value is preferred (i.e. if Pbig is significantly smaller than Psmall), meaning we will know if a quadratic function is preferred over the linear model for a given tissue type. 
 
@@ -30,7 +30,7 @@ Differentially expressed genes in blood that were identified by the linear model
 
 Thus far, 3 contrast matrices fitting linear models between lymph node type (genital-pelvic vs. axillary, genital pelvic vs. mesenteric, axillary vs. mesenteric) were generated. In terms of exploratory data analysis we will be accounting for the time and tissue effect on gene expression. For our current models, we have generated top genes that are differentially expressed, without time accounted for to just observe tissue effect between lymph nodes.
 To analyze whether the transcriptomic changes after SIV infection are the same in the three different lymph nodes or whether they are different by location, we will perform unsupervised clustering for the lymph node samples to see whether the lymph nodes cluster by their location. If they do, we will generate a gene expression heatmap for the lymph node tissues containing all probes that are differentially expressed through time in at least one of the lymph nodes (based on the linear model developed in question 1. If the gene expression in the lymph node sites is similar, but temporally delayed (based on distance to infection site), we should see these patterns in the heatmap.
-[Fitting linear models - lymph node contrast matrix](https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%203/question3.md)
+[Fitting linear models - lymph node contrast matrix](https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Methods/Question%203/question3.md)
 
 **Packages used so far in our analysis:** LIMMA (for the analysis of our microarray gene expression data), GEOquery (to help us get data from the NCBI Gene Expression Omnibus), Biobase, preprocessCore, NMF (to generate correlation heatmaps), Cluster, Ggplot2, and dplyr. 
 
@@ -49,7 +49,7 @@ We have not been able to address all our aims yet, however we do have some prima
 Based on our primary results, we observed that there are differentially expressed genes across different tissues at varying time points, which answers our first research question. We are considering the fact that preliminary analysis shows that there are differences in the differentially expressed genes between tissues as a positive result that supports our hypothesis. We are excited to continue to downstream analysis. 
 
 &nbsp;
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%201/Linear%20Models/Exploratory%20Fitting/Exploration_of_different_models_for_tissue_specific_gene_expression_files/figure-html/unnamed-chunk-5-1.png"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/STAT540-UBC/team_SIV-in-Rhesus-Monkeys/blob/master/Methods/Question%201/Linear%20Models/Exploratory%20Fitting/Exploration_of_different_models_for_tissue_specific_gene_expression_files/figure-html/unnamed-chunk-5-2.png">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Methods/Question%201/Linear%20Models/Exploratory%20Fitting/Exploration_of_different_models_for_tissue_specific_gene_expression_files/figure-html/unnamed-chunk-5-1.png"> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Methods/Question%201/Linear%20Models/Exploratory%20Fitting/Exploration_of_different_models_for_tissue_specific_gene_expression_files/figure-html/unnamed-chunk-5-2.png">
 
 
 The above histograms show the p-value distribution for model 1 (without the quadratic) and model 2 (with the quadratic) of the Jejunum tissue. We can see from this distribution that model 1 may be a better fit for Jejunum due to the higher frequency of lower p-values. 
