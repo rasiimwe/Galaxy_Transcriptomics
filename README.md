@@ -54,7 +54,7 @@
 </table>
 
  ### Project Deliverables
-- [Proposal](https://github.com/rasiimwe/Galaxy_Transcriptomics/tree/main/Proposal)
+- [Proposal](https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Proposal/project_proposal.md)
 - [Progress report](https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Progress%20Report/progress_report.md)
 - [Poster](https://github.com/rasiimwe/Galaxy_Transcriptomics/blob/main/Poster/Poster-FINAL.pdf)
 ---
