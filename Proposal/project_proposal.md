@@ -54,7 +54,7 @@ Group information
 <tr class="odd">
 <td>Rebecca Asiimwe</td>
 <td>Bioinformatics (MSc)</td>
-<td>Computational Biology and Cancer Research</td>
+<td>Data Science and Computational Biology </td>
 <td><span class="citation">@rasiimwe</span></td>
 </tr>
 </tbody>
